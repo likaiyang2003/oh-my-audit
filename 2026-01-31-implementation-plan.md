@@ -8,7 +8,23 @@
 
 **Tech Stack:** Bun, TypeScript, @opencode-ai/sdk, CFR/FernFlower (Java 反编译)
 
-**Design Doc:** See `docs/plans/2026-01-31-code-security-audit-design.md`
+**Design Doc:** See `docs/plans/2026-01-31-code-security-audit-design.md`  
+**Progress Report:** See `PROGRESS-REPORT.md`
+
+---
+
+## 📊 当前进度 (2026-02-01)
+
+| 任务 | 状态 | 代码行 | 测试 |
+|------|------|--------|------|
+| Task 1: 项目初始化 | ✅ 完成 | ~90 | - |
+| Task 2: 基础类型定义 | ✅ 完成 | 95 | 75 |
+| Task 3: JAR 分析工具 | ✅ 完成 | 278 | 57 |
+| Task 4: CFR 反编译器 | ✅ 完成 | 432 | 80 |
+| Task 5: 污点追踪引擎 | ⏳ 待开始 | - | - |
+| ... | ... | ... | ... |
+
+**总体进度**: 4/16 任务完成 (**25%**)
 
 ---
 
