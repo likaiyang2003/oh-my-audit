@@ -5,6 +5,7 @@
     "": {
       "name": "oh-my-audit",
       "dependencies": {
+        "@opencode-ai/plugin": "^1.1.19",
         "@opencode-ai/sdk": "^1.1.19",
         "adm-zip": "^0.5.16",
         "js-yaml": "^4.1.1",
@@ -18,6 +19,8 @@
     },
   },
   "packages": {
+    "@opencode-ai/plugin": ["@opencode-ai/plugin@1.1.48", "", { "dependencies": { "@opencode-ai/sdk": "1.1.48", "zod": "4.1.8" } }, "sha512-KkaSMevXmz7tOwYDMJeWiXE5N8LmRP18qWI5Xhv3+c+FdGPL+l1hQrjSgyv3k7Co7qpCyW3kAUESBB7BzIOl2w=="],
+
     "@opencode-ai/sdk": ["@opencode-ai/sdk@1.1.48", "", {}, "sha512-j5/79X45fUPWVD2Ffm/qvwLclDCdPeV+TYMDrm9to0p4pmzhmeKevCsyiRdLg0o0HE3AFRUnOo2rdO9NetN79A=="],
 
     "@types/adm-zip": ["@types/adm-zip@0.5.7", "", { "dependencies": { "@types/node": "*" } }, "sha512-DNEs/QvmyRLurdQPChqq0Md4zGvPwHerAJYWk9l2jCbD1VPpnzRJorOdiq4zsw09NFbYnhfsoEhWtxIzXpn2yw=="],
@@ -37,5 +40,7 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
+
+    "zod": ["zod@4.1.8", "", {}, "sha512-5R1P+WwQqmmMIEACyzSvo4JXHY5WiAFHRMg+zBZKgKS+Q1viRa0C1hmUKtHltoIFKtIdki3pRxkmpP74jnNYHQ=="],
   }
 }

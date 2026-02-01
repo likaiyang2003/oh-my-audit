@@ -35,6 +35,7 @@
     "bump-version": "bun run ./scripts/bump-version.ts"
   },
   "dependencies": {
+    "@opencode-ai/plugin": "^1.1.19",
     "@opencode-ai/sdk": "^1.1.19",
     "adm-zip": "^0.5.16",
     "js-yaml": "^4.1.1"
