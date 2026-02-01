@@ -28,13 +28,11 @@ export class SSRFAgent {
       const source = decompiledSources.get(entry.className)
       if (!source || !source.isSuccess) continue
       
-      // 检查 URL 验证
-      const validation = hasURLValidation(source.sourceCode)
+      // 检查整个文件是否有 URL 验证（快速检查）
+      const fileValidation = hasURLValidation(source.sourceCode)
       
-      // 如果不严格且已有验证，则跳过
-      if (!this.options.strictMode && validation.hasValidation) {
-        continue
-      }
+      // 如果不严格且整个文件有验证，降低风险等级但不跳过
+      const hasFileLevelValidation = !this.options.strictMode && fileValidation.hasValidation
       
       // 分析每个 SSRF 规则
       for (const rule of SSRF_RULES) {
@@ -43,7 +41,15 @@ export class SSRFAgent {
         for (const match of matches) {
           // 检查是否有用户输入到达 URL
           if (await this.hasUserInputToURL(entry, match, source.sourceCode)) {
-            const vuln = this.createVulnerability(entry, source, rule, match, validation)
+            // 在漏洞点上下文中检测验证
+            const validation = hasURLValidation(source.sourceCode, match.line, 20)
+            
+            // 如果在严格模式下有上下文验证，则跳过
+            if (this.options.strictMode && validation.hasValidation) {
+              continue
+            }
+            
+            const vuln = this.createVulnerability(entry, source, rule, match, validation, hasFileLevelValidation)
             if (vuln) {
               vulnerabilities.push(vuln)
             }
@@ -117,13 +123,20 @@ export class SSRFAgent {
     source: DecompileResult,
     rule: typeof SSRF_RULES[0],
     match: { line: number; code: string; match: string },
-    validation: { hasValidation: boolean; validationType?: string }
+    validation: { hasValidation: boolean; validationType?: string },
+    hasFileLevelValidation: boolean = false
   ): SSRFVulnerability | null {
     const id = `ssrf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     
-    // 确定严重级别
-    const severity = rule.severity === 'critical' ? Severity.CRITICAL : 
-                     rule.severity === 'high' ? Severity.HIGH : Severity.MEDIUM
+    // 确定严重级别（如果有验证则降级）
+    let severity: Severity
+    if (validation.hasValidation || hasFileLevelValidation) {
+      // 有验证，降级为 medium
+      severity = Severity.MEDIUM
+    } else {
+      severity = rule.severity === 'critical' ? Severity.CRITICAL : 
+                 rule.severity === 'high' ? Severity.HIGH : Severity.MEDIUM
+    }
     
     // 提取 URL 构造方式
     const urlConstruction = this.extractURLConstruction(match.code, source.sourceCode)

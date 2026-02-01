@@ -130,26 +130,40 @@ export const SSRF_ATTACK_SCENARIOS = [
   }
 ]
 
-// 检测是否有 URL 验证
-export function hasURLValidation(sourceCode: string): { hasValidation: boolean; validationType?: string } {
+// 检测是否有 URL 验证（在指定上下文中）
+export function hasURLValidation(sourceCode: string, contextLine?: number, contextSize: number = 15): { hasValidation: boolean; validationType?: string } {
+  // 提取验证代码片段
+  let codeToCheck = sourceCode
+  if (contextLine !== undefined) {
+    const lines = sourceCode.split('\n')
+    const start = Math.max(0, contextLine - contextSize)
+    const end = Math.min(lines.length, contextLine + contextSize)
+    codeToCheck = lines.slice(start, end).join('\n')
+  }
+  
   // 检查 startsWith 验证
-  if (/url\.(startsWith|contains)\s*\(\s*["'][^"']+["']\s*\)/.test(sourceCode)) {
+  if (/\w+\.(startsWith|contains)\s*\(\s*["'][^"']+["']\s*\)/.test(codeToCheck)) {
     return { hasValidation: true, validationType: 'startsWith' }
   }
   
   // 检查正则验证
-  if (/Pattern\.matches\s*\(|url\.(matches|regex)\s*\(/.test(sourceCode)) {
+  if (/Pattern\.matches\s*\(|\w+\.(matches|regex)\s*\(/.test(codeToCheck)) {
     return { hasValidation: true, validationType: 'regex' }
   }
   
   // 检查白名单数组验证
-  if (/whitelist|allowedUrls|validDomains/i.test(sourceCode)) {
+  if (/whitelist|allowedUrls|validDomains|Arrays\.asList|List<String>/i.test(codeToCheck)) {
     return { hasValidation: true, validationType: 'whitelist' }
   }
   
   // 检查 URL 解析验证
-  if (/new\s+URL\s*\([^)]+\).*\.getHost\s*\(/.test(sourceCode)) {
+  if (/new\s+URL\s*\([^)]+\).*\.getHost\s*\(/.test(codeToCheck)) {
     return { hasValidation: true, validationType: 'host_validation' }
+  }
+  
+  // 检查主机白名单
+  if (/allowedHosts|validHosts|permittedHosts/i.test(codeToCheck)) {
+    return { hasValidation: true, validationType: 'host_whitelist' }
   }
   
   return { hasValidation: false }
