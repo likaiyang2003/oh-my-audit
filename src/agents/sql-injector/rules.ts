@@ -26,6 +26,8 @@ export const SQL_INJECTION_RULES: SQLInjectionRule[] = [
     patterns: [
       /StringBuilder.*\.append\s*\(\s*["'][^"']*(?:SELECT|INSERT|UPDATE|DELETE)/gi,
       /new\s+StringBuilder\s*\(\s*["'][^"']*(?:SELECT|INSERT|UPDATE|DELETE)/gi,
+      /\.append\s*\(\s*\w+\s*\).*executeQuery/g,
+      /\.append\s*\(\s*\w+\s*\).*execute\s*\(/g,
     ],
     ormFramework: 'jdbc',
     injectionType: 'dynamic_query',

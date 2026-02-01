@@ -148,10 +148,10 @@ describe('SQLInjectionAgent', () => {
   
   it('#given StringBuilder concatenation #when audit is called #then should detect SQL injection', async () => {
     const sourceCode = `
-      public void dynamicQuery(String table, String where) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM ").append(table);
-        sql.append(" WHERE ").append(where);
+      public void search(String userInput) {
+        // 使用 StringBuilder 构建动态 SQL
+        StringBuilder sql = new StringBuilder("SELECT * FROM users WHERE name = '");
+        sql.append(userInput).append("'");
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(sql.toString());
       }
@@ -160,14 +160,13 @@ describe('SQLInjectionAgent', () => {
     const entry: AttackEntry = {
       type: 'controller',
       className: 'QueryController',
-      methodName: 'dynamicQuery',
-      urlPattern: '/api/query',
-      httpMethods: ['POST'],
+      methodName: 'search',
+      urlPattern: '/api/search',
+      httpMethods: ['GET'],
       parameters: [
-        { name: 'table', type: 'String', source: 'body' },
-        { name: 'where', type: 'String', source: 'body' }
+        { name: 'userInput', type: 'String', source: 'query' }
       ],
-      riskLevel: 'critical'
+      riskLevel: 'high'
     }
     
     const decompiledSources = new Map<string, DecompileResult>([[
