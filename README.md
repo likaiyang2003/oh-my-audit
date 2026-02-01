@@ -20,7 +20,67 @@
 
 ## 快速开始
 
-### 安装
+### 在 OpenCode 中使用（推荐）
+
+#### 方法 1: 通过 Git URL 安装
+
+```bash
+# 在 OpenCode 中安装插件
+opencode plugin install https://github.com/likaiyang2003/oh-my-audit.git
+```
+
+#### 方法 2: 手动安装到插件目录
+
+```bash
+# 1. 克隆仓库到 OpenCode 插件目录
+cd ~/.config/opencode/plugins/
+git clone https://github.com/likaiyang2003/oh-my-audit.git code-security-audit
+
+# 2. 进入插件目录并安装依赖
+cd code-security-audit
+bun install
+
+# 3. 构建插件
+bun run build
+```
+
+#### 方法 3: 在 OpenCode 配置文件中添加
+
+编辑 `~/.config/opencode/config.json`:
+
+```json
+{
+  "plugins": [
+    {
+      "name": "code-security-audit",
+      "url": "https://github.com/likaiyang2003/oh-my-audit.git"
+    }
+  ]
+}
+```
+
+### 使用示例
+
+安装后，在 OpenCode 中可以直接调用以下工具：
+
+```
+# 审计 JAR 文件
+/audit_jar jarPath=/path/to/app.jar reportFormat=html
+
+# 检测 SQL 注入
+/detect_sql_injection sourceCode="String sql = 'SELECT * FROM users WHERE id = ' + userId"
+
+# 检测 SSRF
+/detect_ssrf sourceCode="URL url = new URL(request.getParameter('url'))"
+
+# 检测 RCE
+/detect_rce sourceCode="Runtime.getRuntime().exec(cmd)"
+
+# 生成报告
+/generate_audit_report vulnerabilities=[...] format=markdown
+```
+
+### 独立使用（开发/测试）
 
 ```bash
 # 克隆仓库
@@ -111,6 +171,62 @@ console.log(`发现 ${vulnerabilities.length} 个漏洞`)
 4. **Specialized Agents** - 专项漏洞检测 Agent
 5. **Sentry** - 主控协调 Agent
 6. **Report Generator** - 多格式报告生成
+
+## OpenCode 集成详情
+
+### 可用工具列表
+
+安装后，OpenCode 会自动注册以下 9 个工具：
+
+| 工具名称 | 功能描述 | 使用场景 |
+|---------|---------|---------|
+| `audit_jar` | 完整的 JAR 安全审计 | 对 Java 应用进行全面安全扫描 |
+| `decompile_class` | 反编译 Java 类 | 查看 JAR 内某个类的源码 |
+| `analyze_taint` | 污点分析 | 追踪数据从输入到危险函数的流向 |
+| `detect_sql_injection` | SQL 注入检测 | 分析代码中的 SQL 拼接问题 |
+| `detect_ssrf` | SSRF 检测 | 查找服务器端请求伪造漏洞 |
+| `detect_rce` | RCE 检测 | 发现命令执行和反序列化漏洞 |
+| `detect_auth_vulnerabilities` | 认证漏洞检测 | 查找 JWT、IDOR、越权等问题 |
+| `detect_business_logic` | 业务逻辑检测 | 发现支付绕过、竞争条件等 |
+| `generate_audit_report` | 生成审计报告 | 将漏洞结果转换为报告 |
+
+### 工具调用示例
+
+#### 完整 JAR 审计
+
+```
+/audit_jar jarPath=/path/to/application.jar severityFilter=["critical","high"] reportFormat=json
+```
+
+参数说明：
+- `jarPath`: JAR 文件的绝对路径
+- `severityFilter`: 可选，过滤严重级别，默认全部
+- `reportFormat`: 可选，报告格式 (console/json/html/markdown)，默认 console
+
+#### 代码片段分析
+
+```
+/detect_sql_injection sourceCode="public void query(String userId) { String sql = \"SELECT * FROM users WHERE id = '\" + userId + \"'\"; stmt.execute(sql); }" methodName=query
+```
+
+#### 批量类反编译
+
+```
+/decompile_class jarPath=/path/to/app.jar className=com.example.UserController
+```
+
+### 配置文件
+
+在 OpenCode 中使用 `opencode-plugin.json` 配置：
+
+```json
+{
+  "name": "code-security-audit",
+  "version": "1.0.0",
+  "permissions": ["file-system-read"],
+  "supportedModels": ["claude", "gpt-4", "gemini", "grok", "glm"]
+}
+```
 
 ## 支持的漏洞类型
 
